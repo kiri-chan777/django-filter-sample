@@ -1,0 +1,168 @@
+{% extends 'employees/base.html' %} {% block content %}
+<div class="container my-4">
+  <h1>従業員一覧</h1>
+
+  <!-- フィルタフォーム -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>検索条件</h5>
+    </div>
+    <div class="card-body">
+      <form method="get" class="row g-3">
+        <div class="col-md-4">
+          <label for="{{ form.name.id_for_label }}" class="form-label"
+            >{{ form.name.label }}</label
+          >
+          {{ form.name }}
+        </div>
+
+        <div class="col-md-4">
+          <label for="{{ form.department.id_for_label }}" class="form-label"
+            >{{ form.department.label }}</label
+          >
+          {{ form.department }}
+        </div>
+
+        <div class="col-md-4">
+          <label for="{{ form.status.id_for_label }}" class="form-label"
+            >{{ form.status.label }}</label
+          >
+          {{ form.status }}
+        </div>
+
+        <div class="col-md-3">
+          <label for="{{ form.hire_date_from.id_for_label }}" class="form-label"
+            >{{ form.hire_date_from.label }}</label
+          >
+          {{ form.hire_date_from }}
+        </div>
+
+        <div class="col-md-3">
+          <label for="{{ form.hire_date_to.id_for_label }}" class="form-label"
+            >{{ form.hire_date_to.label }}</label
+          >
+          {{ form.hire_date_to }}
+        </div>
+
+        <div class="col-md-3">
+          <label for="{{ form.min_salary.id_for_label }}" class="form-label"
+            >{{ form.min_salary.label }}</label
+          >
+          {{ form.min_salary }}
+        </div>
+
+        <div class="col-md-3">
+          <label for="{{ form.max_salary.id_for_label }}" class="form-label"
+            >{{ form.max_salary.label }}</label
+          >
+          {{ form.max_salary }}
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">検索</button>
+          <a href="{% url 'employee_list' %}" class="btn btn-secondary"
+            >リセット</a
+          >
+          <button
+            type="submit"
+            name="export_excel"
+            value="true"
+            class="btn btn-success ms-auto"
+          >
+            Excel出力
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 検索結果 -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5>検索結果 ({{ page_obj.paginator.count }}件)</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>社員ID</th>
+              <th>氏名</th>
+              <th>所属部署</th>
+              <th>入社日</th>
+              <th>在籍状況</th>
+              <th>給与</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for employee in employees %}
+            <tr>
+              <td>{{ employee.employee_id }}</td>
+              <td>{{ employee.name }}</td>
+              <td>{{ employee.department.name }}</td>
+              <td>{{ employee.hire_date|date:"Y/m/d" }}</td>
+              <td>{{ employee.get_status_display }}</td>
+              <td>
+                {{ employee.salary|stringformat:"d"|slice:":-3" }},{{
+                employee.salary|stringformat:"d"|slice:"-3:" }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center">該当する従業員はいません</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ページネーション -->
+      {% if is_paginated %}
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1"
+              >最初</a
+            >
+          </li>
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}"
+              >前へ</a
+            >
+          </li>
+          {% endif %}
+
+          <li class="page-item active">
+            <span class="page-link"
+              >{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span
+            >
+          </li>
+
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}"
+              >次へ</a
+            >
+          </li>
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}"
+              >最後</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
