@@ -1,4 +1,4 @@
-{% extends 'employees/base.html' %} {% block content %}
+{% extends 'employees/base.html' %} {% block content %} {% load humanize %}
 <div class="container my-4">
   <h1>従業員一覧</h1>
 
@@ -103,8 +103,7 @@
               <td>{{ employee.hire_date|date:"Y/m/d" }}</td>
               <td>{{ employee.get_status_display }}</td>
               <td>
-                {{ employee.salary|stringformat:"d"|slice:":-3" }},{{
-                employee.salary|stringformat:"d"|slice:"-3:" }}
+                {{ employee.salary|intcomma }}
               </td>
             </tr>
             {% empty %}
